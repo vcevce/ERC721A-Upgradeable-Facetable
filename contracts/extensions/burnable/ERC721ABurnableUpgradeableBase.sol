@@ -4,19 +4,20 @@
 
 pragma solidity ^0.8.4;
 
-import './IERC721ABurnableUpgradeable.sol';
-import '../ERC721AUpgradeable.sol';
-import '../ERC721A__Initializable.sol';
+import '../../ERC721AUpgradeableBase.sol';
+import './IERC721ABurnableUpgradeableBase.sol';
+import '../../ERC721AUpgradeableBaseInternal.sol';
+import '../../ERC721A__Initializable.sol';
 
 /**
- * @title ERC721ABurnable.
+ * @title ERC721ABurnableUpgradeableBase.
  *
  * @dev ERC721A token that can be irreversibly burned (destroyed).
  */
-abstract contract ERC721ABurnableUpgradeable is
+abstract contract ERC721ABurnableUpgradeableBase is
     ERC721A__Initializable,
-    ERC721AUpgradeable,
-    IERC721ABurnableUpgradeable
+    ERC721AUpgradeableBase,
+    IERC721ABurnableUpgradeableBase
 {
     function __ERC721ABurnable_init() internal onlyInitializingERC721A {
         __ERC721ABurnable_init_unchained();

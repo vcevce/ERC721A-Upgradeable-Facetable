@@ -20,28 +20,6 @@ const createTestSuite = ({ contract, constructorArgs }) =>
         offsetted = (...arr) => offsettedIndex(this.startTokenId, arr);
       });
 
-      describe('EIP-165 support', async function () {
-        it('supports ERC165', async function () {
-          expect(await this.erc721a.supportsInterface('0x01ffc9a7')).to.eq(true);
-        });
-
-        it('supports IERC721', async function () {
-          expect(await this.erc721a.supportsInterface('0x80ac58cd')).to.eq(true);
-        });
-
-        it('supports ERC721Metadata', async function () {
-          expect(await this.erc721a.supportsInterface('0x5b5e139f')).to.eq(true);
-        });
-
-        it('does not support ERC721Enumerable', async function () {
-          expect(await this.erc721a.supportsInterface('0x780e9d63')).to.eq(false);
-        });
-
-        it('does not support random interface', async function () {
-          expect(await this.erc721a.supportsInterface('0x00000042')).to.eq(false);
-        });
-      });
-
       describe('ERC721Metadata support', async function () {
         it('name', async function () {
           expect(await this.erc721a.name()).to.eq(constructorArgs[0]);

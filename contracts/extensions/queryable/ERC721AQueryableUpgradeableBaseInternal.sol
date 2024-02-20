@@ -4,19 +4,19 @@
 
 pragma solidity ^0.8.4;
 
-import './IERC721AQueryableUpgradeable.sol';
-import '../ERC721AUpgradeable.sol';
-import '../ERC721A__Initializable.sol';
+import './IERC721AQueryableUpgradeableBaseInternal.sol';
+import '../../ERC721AUpgradeableBaseInternal.sol';
+import '../../ERC721A__Initializable.sol';
 
 /**
- * @title ERC721AQueryable.
+ * @title ERC721AQueryableUpgradeableBaseInternal.
  *
  * @dev ERC721A subclass with convenience query functions.
  */
-abstract contract ERC721AQueryableUpgradeable is
+abstract contract ERC721AQueryableUpgradeableBaseInternal is
     ERC721A__Initializable,
-    ERC721AUpgradeable,
-    IERC721AQueryableUpgradeable
+    ERC721AUpgradeableBaseInternal,
+    IERC721AQueryableUpgradeableBaseInternal
 {
     function __ERC721AQueryable_init() internal onlyInitializingERC721A {
         __ERC721AQueryable_init_unchained();
@@ -48,11 +48,10 @@ abstract contract ERC721AQueryableUpgradeable is
      * - `burned = false`
      * - `extraData = <Extra data at start of ownership>`
      */
-    function explicitOwnershipOf(uint256 tokenId)
-        public
+    function _explicitOwnershipOf(uint256 tokenId)
+        internal
         view
         virtual
-        override
         returns (TokenOwnership memory ownership)
     {
         unchecked {
@@ -71,11 +70,10 @@ abstract contract ERC721AQueryableUpgradeable is
      * @dev Returns an array of `TokenOwnership` structs at `tokenIds` in order.
      * See {ERC721AQueryable-explicitOwnershipOf}
      */
-    function explicitOwnershipsOf(uint256[] calldata tokenIds)
-        external
+    function _explicitOwnershipsOf(uint256[] calldata tokenIds)
+        internal
         view
         virtual
-        override
         returns (TokenOwnership[] memory)
     {
         TokenOwnership[] memory ownerships;
@@ -96,33 +94,13 @@ abstract contract ERC721AQueryableUpgradeable is
                 i := sub(i, 0x20)
                 tokenId := calldataload(add(tokenIds.offset, i))
             }
-            TokenOwnership memory ownership = explicitOwnershipOf(tokenId);
+            TokenOwnership memory ownership = _explicitOwnershipOf(tokenId);
             assembly {
                 // Store the pointer of `ownership` in the `ownerships` array.
                 mstore(add(add(ownerships, 0x20), i), ownership)
             }
         }
         return ownerships;
-    }
-
-    /**
-     * @dev Returns an array of token IDs owned by `owner`,
-     * in the range [`start`, `stop`)
-     * (i.e. `start <= tokenId < stop`).
-     *
-     * This function allows for tokens to be queried if the collection
-     * grows too big for a single call of {ERC721AQueryable-tokensOfOwner}.
-     *
-     * Requirements:
-     *
-     * - `start < stop`
-     */
-    function tokensOfOwnerIn(
-        address owner,
-        uint256 start,
-        uint256 stop
-    ) external view virtual override returns (uint256[] memory) {
-        return _tokensOfOwnerIn(owner, start, stop);
     }
 
     /**
@@ -135,7 +113,7 @@ abstract contract ERC721AQueryableUpgradeable is
      * multiple smaller scans if the collection is large enough to cause
      * an out-of-gas error (10K collections should be fine).
      */
-    function tokensOfOwner(address owner) external view virtual override returns (uint256[] memory) {
+    function _tokensOfOwner(address owner) internal view virtual returns (uint256[] memory) {
         uint256 start = _startTokenId();
         uint256 stop = _nextTokenId();
         uint256[] memory tokenIds;
@@ -153,7 +131,7 @@ abstract contract ERC721AQueryableUpgradeable is
         address owner,
         uint256 start,
         uint256 stop
-    ) private view returns (uint256[] memory) {
+    ) internal view returns (uint256[] memory) {
         unchecked {
             if (start >= stop) _revert(InvalidQueryRange.selector);
             // Set `start = max(start, _startTokenId())`.
@@ -166,7 +144,7 @@ abstract contract ERC721AQueryableUpgradeable is
                 stop = stopLimit;
             }
             uint256[] memory tokenIds;
-            uint256 tokenIdsMaxLength = balanceOf(owner);
+            uint256 tokenIdsMaxLength = _balanceOf(owner);
             bool startLtStop = start < stop;
             assembly {
                 // Set `tokenIdsMaxLength` to zero if `start` is less than `stop`.
@@ -187,7 +165,7 @@ abstract contract ERC721AQueryableUpgradeable is
                 }
                 // We need to call `explicitOwnershipOf(start)`,
                 // because the slot at `start` may not be initialized.
-                TokenOwnership memory ownership = explicitOwnershipOf(start);
+                TokenOwnership memory ownership = _explicitOwnershipOf(start);
                 address currOwnershipAddr;
                 // If the starting slot exists (i.e. not burned),
                 // initialize `currOwnershipAddr`.

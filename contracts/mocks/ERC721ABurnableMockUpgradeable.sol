@@ -4,10 +4,12 @@
 
 pragma solidity ^0.8.4;
 
-import '../extensions/ERC721ABurnableUpgradeable.sol';
+import '../ERC721AUpgradeableBase.sol';
+import '../extensions/burnable/ERC721ABurnableUpgradeableBase.sol';
 import '../ERC721A__Initializable.sol';
 
-contract ERC721ABurnableMockUpgradeable is ERC721A__Initializable, ERC721AUpgradeable, ERC721ABurnableUpgradeable {
+contract ERC721ABurnableMockUpgradeable is ERC721A__Initializable, ERC721AUpgradeableBase, ERC721ABurnableUpgradeableBase {
+
     function __ERC721ABurnableMock_init(string memory name_, string memory symbol_) internal onlyInitializingERC721A {
         __ERC721A_init_unchained(name_, symbol_);
         __ERC721ABurnable_init_unchained();

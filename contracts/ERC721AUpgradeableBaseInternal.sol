@@ -4,9 +4,9 @@
 
 pragma solidity ^0.8.4;
 
-import './IERC721AUpgradeable.sol';
+import {IERC721AUpgradeableBaseInternal} from './IERC721AUpgradeableBaseInternal.sol';
 import {ERC721AStorage} from './ERC721AStorage.sol';
-import './ERC721A__Initializable.sol';
+import {ERC721A__Initializable} from './ERC721A__Initializable.sol';
 
 /**
  * @dev Interface of ERC721 token receiver.
@@ -35,7 +35,7 @@ interface ERC721A__IERC721ReceiverUpgradeable {
  * - An owner cannot have more than 2**64 - 1 (max value of uint64) of supply.
  * - The maximum token ID cannot exceed 2**256 - 1 (max value of uint256).
  */
-contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
+abstract contract ERC721AUpgradeableBaseInternal is ERC721A__Initializable, IERC721AUpgradeableBaseInternal {
     using ERC721AStorage for ERC721AStorage.Layout;
 
     // =============================================================
@@ -108,6 +108,19 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     // =============================================================
 
     /**
+     * @dev Returns the total number of tokens in existence.
+     * Burned tokens will reduce the count.
+     * To get the total number of tokens minted, please see {_totalMinted}.
+     */
+    function _totalSupply() internal view virtual returns (uint256) {
+        // Counter underflow is impossible as _burnCounter cannot be incremented
+        // more than `_currentIndex - _startTokenId()` times.
+        unchecked {
+            return ERC721AStorage.layout()._currentIndex - ERC721AStorage.layout()._burnCounter - _startTokenId();
+        }
+    }
+
+    /**
      * @dev Returns the starting token ID.
      * To change the starting token ID, please override this function.
      */
@@ -120,19 +133,6 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
      */
     function _nextTokenId() internal view virtual returns (uint256) {
         return ERC721AStorage.layout()._currentIndex;
-    }
-
-    /**
-     * @dev Returns the total number of tokens in existence.
-     * Burned tokens will reduce the count.
-     * To get the total number of tokens minted, please see {_totalMinted}.
-     */
-    function totalSupply() public view virtual override returns (uint256) {
-        // Counter underflow is impossible as _burnCounter cannot be incremented
-        // more than `_currentIndex - _startTokenId()` times.
-        unchecked {
-            return ERC721AStorage.layout()._currentIndex - ERC721AStorage.layout()._burnCounter - _startTokenId();
-        }
     }
 
     /**
@@ -160,10 +160,11 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     /**
      * @dev Returns the number of tokens in `owner`'s account.
      */
-    function balanceOf(address owner) public view virtual override returns (uint256) {
+    function _balanceOf(address owner) internal view virtual returns (uint256) {
         if (owner == address(0)) _revert(BalanceQueryForZeroAddress.selector);
         return ERC721AStorage.layout()._packedAddressData[owner] & _BITMASK_ADDRESS_DATA_ENTRY;
     }
+
 
     /**
      * Returns the number of tokens minted by `owner`.
@@ -204,55 +205,8 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     }
 
     // =============================================================
-    //                            IERC165
-    // =============================================================
-
-    /**
-     * @dev Returns true if this contract implements the interface defined by
-     * `interfaceId`. See the corresponding
-     * [EIP section](https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified)
-     * to learn more about how these ids are created.
-     *
-     * This function call must use less than 30000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        // The interface IDs are constants representing the first 4 bytes
-        // of the XOR of all function selectors in the interface.
-        // See: [ERC165](https://eips.ethereum.org/EIPS/eip-165)
-        // (e.g. `bytes4(i.functionA.selector ^ i.functionB.selector ^ ...)`)
-        return
-            interfaceId == 0x01ffc9a7 || // ERC165 interface ID for ERC165.
-            interfaceId == 0x80ac58cd || // ERC165 interface ID for ERC721.
-            interfaceId == 0x5b5e139f; // ERC165 interface ID for ERC721Metadata.
-    }
-
-    // =============================================================
     //                        IERC721Metadata
     // =============================================================
-
-    /**
-     * @dev Returns the token collection name.
-     */
-    function name() public view virtual override returns (string memory) {
-        return ERC721AStorage.layout()._name;
-    }
-
-    /**
-     * @dev Returns the token collection symbol.
-     */
-    function symbol() public view virtual override returns (string memory) {
-        return ERC721AStorage.layout()._symbol;
-    }
-
-    /**
-     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
-     */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        if (!_exists(tokenId)) _revert(URIQueryForNonexistentToken.selector);
-
-        string memory baseURI = _baseURI();
-        return bytes(baseURI).length != 0 ? string(abi.encodePacked(baseURI, _toString(tokenId))) : '';
-    }
 
     /**
      * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
@@ -263,20 +217,33 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
         return '';
     }
 
+    /**
+     * @dev Returns the token collection name.
+     */
+    function _name() public view virtual returns (string memory) {
+        return ERC721AStorage.layout()._name;
+    }
+
+    /**
+     * @dev Returns the token collection symbol.
+     */
+    function _symbol() public view virtual returns (string memory) {
+        return ERC721AStorage.layout()._symbol;
+    }
+
+    /**
+     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     */
+    function _tokenURI(uint256 tokenId) public view virtual returns (string memory) {
+        if (!_exists(tokenId)) _revert(URIQueryForNonexistentToken.selector);
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length != 0 ? string(abi.encodePacked(baseURI, _toString(tokenId))) : '';
+    }
+
     // =============================================================
     //                     OWNERSHIPS OPERATIONS
     // =============================================================
-
-    /**
-     * @dev Returns the owner of the `tokenId` token.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        return address(uint160(_packedOwnershipOf(tokenId)));
-    }
 
     /**
      * @dev Gas spent here starts off proportional to the maximum mint batch size.
@@ -383,57 +350,23 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     }
 
     // =============================================================
-    //                      APPROVAL OPERATIONS
+    //                     OWNERSHIPS OPERATIONS
     // =============================================================
 
     /**
-     * @dev Gives permission to `to` to transfer `tokenId` token to another account. See {ERC721A-_approve}.
-     *
-     * Requirements:
-     *
-     * - The caller must own the token or be an approved operator.
-     */
-    function approve(address to, uint256 tokenId) public payable virtual override {
-        _approve(to, tokenId, true);
-    }
-
-    /**
-     * @dev Returns the account approved for `tokenId` token.
+     * @dev Returns the owner of the `tokenId` token.
      *
      * Requirements:
      *
      * - `tokenId` must exist.
      */
-    function getApproved(uint256 tokenId) public view virtual override returns (address) {
-        if (!_exists(tokenId)) _revert(ApprovalQueryForNonexistentToken.selector);
-
-        return ERC721AStorage.layout()._tokenApprovals[tokenId].value;
+    function _ownerOf(uint256 tokenId) public view virtual returns (address) {
+        return address(uint160(_packedOwnershipOf(tokenId)));
     }
 
-    /**
-     * @dev Approve or remove `operator` as an operator for the caller.
-     * Operators can call {transferFrom} or {safeTransferFrom}
-     * for any token owned by the caller.
-     *
-     * Requirements:
-     *
-     * - The `operator` cannot be the caller.
-     *
-     * Emits an {ApprovalForAll} event.
-     */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
-        ERC721AStorage.layout()._operatorApprovals[_msgSenderERC721A()][operator] = approved;
-        emit ApprovalForAll(_msgSenderERC721A(), operator, approved);
-    }
-
-    /**
-     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
-     *
-     * See {setApprovalForAll}.
-     */
-    function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
-        return ERC721AStorage.layout()._operatorApprovals[owner][operator];
-    }
+    // =============================================================
+    //                      APPROVAL OPERATIONS
+    // =============================================================
 
     /**
      * @dev Returns whether `tokenId` exists.
@@ -490,7 +423,7 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     //                      TRANSFER OPERATIONS
     // =============================================================
 
-    /**
+/**
      * @dev Transfers `tokenId` from `from` to `to`.
      *
      * Requirements:
@@ -503,11 +436,11 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
+    function _transferFrom(
         address from,
         address to,
         uint256 tokenId
-    ) public payable virtual override {
+    ) public payable virtual {
         uint256 prevOwnershipPacked = _packedOwnershipOf(tokenId);
 
         // Mask `from` to the lower 160 bits, in case the upper bits somehow aren't clean.
@@ -519,7 +452,7 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
 
         // The nested ifs save around 20+ gas over a compound boolean condition.
         if (!_isSenderApprovedOrOwner(approvedAddress, from, _msgSenderERC721A()))
-            if (!isApprovedForAll(from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
+            if (!_isApprovedForAll(from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
 
         _beforeTokenTransfers(from, to, tokenId, 1);
 
@@ -582,17 +515,6 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     }
 
     /**
-     * @dev Equivalent to `safeTransferFrom(from, to, tokenId, '')`.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public payable virtual override {
-        safeTransferFrom(from, to, tokenId, '');
-    }
-
-    /**
      * @dev Safely transfers `tokenId` token from `from` to `to`.
      *
      * Requirements:
@@ -607,13 +529,13 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(
+    function _safeTransferFrom(
         address from,
         address to,
         uint256 tokenId,
         bytes memory _data
-    ) public payable virtual override {
-        transferFrom(from, to, tokenId);
+    ) public payable virtual {
+        _transferFrom(from, to, tokenId);
         if (to.code.length != 0)
             if (!_checkContractOnERC721Received(from, to, tokenId, _data)) {
                 _revert(TransferToNonERC721ReceiverImplementer.selector);
@@ -868,6 +790,31 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
     // =============================================================
 
     /**
+     * @dev Approve or remove `operator` as an operator for the caller.
+     * Operators can call {transferFrom} or {safeTransferFrom}
+     * for any token owned by the caller.
+     *
+     * Requirements:
+     *
+     * - The `operator` cannot be the caller.
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function _setApprovalForAll(address operator, bool approved) public virtual {
+        ERC721AStorage.layout()._operatorApprovals[_msgSenderERC721A()][operator] = approved;
+        emit ApprovalForAll(_msgSenderERC721A(), operator, approved);
+    }
+
+    /**
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     *
+     * See {setApprovalForAll}.
+     */
+    function _isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+        return ERC721AStorage.layout()._operatorApprovals[owner][operator];
+    }
+
+    /**
      * @dev Equivalent to `_approve(to, tokenId, false)`.
      */
     function _approve(address to, uint256 tokenId) internal virtual {
@@ -892,15 +839,28 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
         uint256 tokenId,
         bool approvalCheck
     ) internal virtual {
-        address owner = ownerOf(tokenId);
+        address owner = _ownerOf(tokenId);
 
         if (approvalCheck && _msgSenderERC721A() != owner)
-            if (!isApprovedForAll(owner, _msgSenderERC721A())) {
+            if (!_isApprovedForAll(owner, _msgSenderERC721A())) {
                 _revert(ApprovalCallerNotOwnerNorApproved.selector);
             }
 
         ERC721AStorage.layout()._tokenApprovals[tokenId].value = to;
         emit Approval(owner, to, tokenId);
+    }
+
+    /**
+     * @dev Returns the account approved for `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function _getApproved(uint256 tokenId) public view virtual returns (address) {
+        if (!_exists(tokenId)) _revert(ApprovalQueryForNonexistentToken.selector);
+
+        return ERC721AStorage.layout()._tokenApprovals[tokenId].value;
     }
 
     // =============================================================
@@ -934,7 +894,7 @@ contract ERC721AUpgradeable is ERC721A__Initializable, IERC721AUpgradeable {
         if (approvalCheck) {
             // The nested ifs save around 20+ gas over a compound boolean condition.
             if (!_isSenderApprovedOrOwner(approvedAddress, from, _msgSenderERC721A()))
-                if (!isApprovedForAll(from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
+                if (!_isApprovedForAll(from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
         }
 
         _beforeTokenTransfers(from, address(0), tokenId, 1);

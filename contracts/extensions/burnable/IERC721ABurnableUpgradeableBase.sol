@@ -4,12 +4,12 @@
 
 pragma solidity ^0.8.4;
 
-import '../IERC721AUpgradeable.sol';
+import '../../IERC721AUpgradeableBaseInternal.sol';
 
 /**
- * @dev Interface of ERC721ABurnable.
+ * @dev Interface of ERC721ABurnableUpgradeableBase.
  */
-interface IERC721ABurnableUpgradeable is IERC721AUpgradeable {
+interface IERC721ABurnableUpgradeableBase {
     /**
      * @dev Burns `tokenId`. See {ERC721A-_burn}.
      *
