@@ -4,4 +4,4 @@
 
 pragma solidity ^0.8.4;
 
-import '../extensions/burnable/IERC721ABurnableUpgradeableBase.sol';
+import '../extensions/queryable/IERC721AQueryable.sol';

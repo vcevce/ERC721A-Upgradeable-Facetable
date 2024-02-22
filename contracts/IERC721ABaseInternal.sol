@@ -4,7 +4,7 @@
 
 pragma solidity ^0.8.4;
 
-interface IERC721AUpgradeableBaseInternal {
+interface IERC721ABaseInternal {
     // =============================================================
     //                            STRUCTS
     // =============================================================

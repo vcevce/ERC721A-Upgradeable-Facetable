@@ -4,8 +4,8 @@
 
 pragma solidity ^0.8.4;
 
-import './IERC721AUpgradeableBase.sol';
-import './ERC721AUpgradeableBaseInternal.sol';
+import './IERC721ABase.sol';
+import './ERC721ABaseInternal.sol';
 import './ERC721A__Initializable.sol';
 
 /**
@@ -23,7 +23,7 @@ import './ERC721A__Initializable.sol';
  * - An owner cannot have more than 2**64 - 1 (max value of uint64) of supply.
  * - The maximum token ID cannot exceed 2**256 - 1 (max value of uint256).
  */
-abstract contract ERC721AUpgradeableBase is ERC721A__Initializable, IERC721AUpgradeableBase, ERC721AUpgradeableBaseInternal {
+abstract contract ERC721ABase is ERC721A__Initializable, IERC721ABase, ERC721ABaseInternal {
 
     // =============================================================
     //                   TOKEN COUNTING OPERATIONS

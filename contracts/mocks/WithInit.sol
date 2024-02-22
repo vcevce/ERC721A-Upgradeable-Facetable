@@ -2,9 +2,9 @@
 pragma solidity >=0.7 <0.9;
 pragma experimental ABIEncoderV2;
 
-import '../ERC721AUpgradeableBase.sol';
+import '../ERC721ABase.sol';
 
-contract ERC721AUpgradeableWithInit is ERC721AUpgradeableBase {
+contract ERC721AUpgradeableWithInit is ERC721ABase {
     constructor(string memory name_, string memory symbol_) payable initializerERC721A {
         __ERC721A_init(name_, symbol_);
     }

@@ -4,22 +4,13 @@
 
 pragma solidity ^0.8.4;
 
-import '../../ERC721AUpgradeableBase.sol';
-import './ERC721AQueryableUpgradeableBaseInternal.sol';
-import './IERC721AQueryableUpgradeableBase.sol';
-import '../../ERC721A__Initializable.sol';
+import '../../IERC721ABaseInternal.sol';
+import './IERC721AQueryableInternal.sol';
 
 /**
- * @title ERC721AQueryableUpgradeableBase.
- *
- * @dev ERC721A subclass with convenience query functions.
+ * @dev Interface of ERC721AQueryableBase.
  */
-abstract contract ERC721AQueryableUpgradeableBase is
-    ERC721A__Initializable,
-    ERC721AUpgradeableBase,
-    ERC721AQueryableUpgradeableBaseInternal,
-    IERC721AQueryableUpgradeableBase
-{
+interface IERC721AQueryable is IERC721AQueryableInternal {
     /**
      * @dev Returns the `TokenOwnership` struct at `tokenId` without reverting.
      *
@@ -44,29 +35,13 @@ abstract contract ERC721AQueryableUpgradeableBase is
      * - `burned = false`
      * - `extraData = <Extra data at start of ownership>`
      */
-    function explicitOwnershipOf(uint256 tokenId)
-        public
-        view
-        virtual
-        override
-        returns (TokenOwnership memory ownership)
-    {
-        return _explicitOwnershipOf(tokenId);
-    }
+    function explicitOwnershipOf(uint256 tokenId) external view returns (TokenOwnership memory);
 
     /**
      * @dev Returns an array of `TokenOwnership` structs at `tokenIds` in order.
      * See {ERC721AQueryable-explicitOwnershipOf}
      */
-    function explicitOwnershipsOf(uint256[] calldata tokenIds)
-        external
-        view
-        virtual
-        override
-        returns (TokenOwnership[] memory)
-    {
-        return _explicitOwnershipsOf(tokenIds);
-    }
+    function explicitOwnershipsOf(uint256[] memory tokenIds) external view returns (TokenOwnership[] memory);
 
     /**
      * @dev Returns an array of token IDs owned by `owner`,
@@ -84,9 +59,7 @@ abstract contract ERC721AQueryableUpgradeableBase is
         address owner,
         uint256 start,
         uint256 stop
-    ) external view virtual override returns (uint256[] memory) {
-        return _tokensOfOwnerIn(owner, start, stop);
-    }
+    ) external view returns (uint256[] memory);
 
     /**
      * @dev Returns an array of token IDs owned by `owner`.
@@ -98,7 +71,5 @@ abstract contract ERC721AQueryableUpgradeableBase is
      * multiple smaller scans if the collection is large enough to cause
      * an out-of-gas error (10K collections should be fine).
      */
-    function tokensOfOwner(address owner) external view virtual override returns (uint256[] memory) {
-        return _tokensOfOwner(owner);
-    }
+    function tokensOfOwner(address owner) external view returns (uint256[] memory);
 }

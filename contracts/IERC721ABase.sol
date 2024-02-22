@@ -7,7 +7,7 @@ pragma solidity ^0.8.4;
 /**
  * @dev Interface of ERC721A.
  */
-interface IERC721AUpgradeableBase {
+interface IERC721ABase {
 
     // =============================================================
     //                         TOKEN COUNTERS

@@ -6,12 +6,12 @@
 
 pragma solidity ^0.8.4;
 
-import '../../IERC721AUpgradeableBaseInternal.sol';
+import '../../IERC721ABaseInternal.sol';
 
 /**
  * @dev Interface of ERC721AQueryableBase.
  */
-interface IERC721AQueryableUpgradeableBaseInternal is IERC721AUpgradeableBaseInternal {
+interface IERC721AQueryableInternal is IERC721ABaseInternal {
     /**
      * Invalid query range (`start` >= `stop`).
      */

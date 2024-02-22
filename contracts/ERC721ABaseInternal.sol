@@ -4,7 +4,7 @@
 
 pragma solidity ^0.8.4;
 
-import {IERC721AUpgradeableBaseInternal} from './IERC721AUpgradeableBaseInternal.sol';
+import {IERC721ABaseInternal} from './IERC721ABaseInternal.sol';
 import {ERC721AStorage} from './ERC721AStorage.sol';
 import {ERC721A__Initializable} from './ERC721A__Initializable.sol';
 
@@ -35,7 +35,7 @@ interface ERC721A__IERC721ReceiverUpgradeable {
  * - An owner cannot have more than 2**64 - 1 (max value of uint64) of supply.
  * - The maximum token ID cannot exceed 2**256 - 1 (max value of uint256).
  */
-abstract contract ERC721AUpgradeableBaseInternal is ERC721A__Initializable, IERC721AUpgradeableBaseInternal {
+abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInternal {
     using ERC721AStorage for ERC721AStorage.Layout;
 
     // =============================================================

@@ -4,15 +4,17 @@
 
 pragma solidity ^0.8.4;
 
-import '../extensions/queryable/ERC721AQueryableUpgradeableBase.sol';
-import '../extensions/burnable/ERC721ABurnableUpgradeableBase.sol';
+import '../ERC721ABase.sol';
+import '../extensions/queryable/ERC721AQueryable.sol';
+import '../extensions/burnable/ERC721ABurnable.sol';
 import './DirectBurnBitSetterHelperUpgradeable.sol';
 import '../ERC721A__Initializable.sol';
 
 contract ERC721AQueryableMockUpgradeable is
     ERC721A__Initializable,
-    ERC721AQueryableUpgradeableBase,
-    ERC721ABurnableUpgradeableBase,
+    ERC721ABase,
+    ERC721AQueryable,
+    ERC721ABurnable,
     DirectBurnBitSetterHelperUpgradeable
 {
     function __ERC721AQueryableMock_init(string memory name_, string memory symbol_) internal onlyInitializingERC721A {

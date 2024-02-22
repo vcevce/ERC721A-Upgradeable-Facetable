@@ -4,7 +4,7 @@
 
 pragma solidity ^0.8.4;
 
-import '../ERC721AUpgradeableBase.sol';
+import '../ERC721ABase.sol';
 import {ERC721ReceiverMockStorage} from './ERC721ReceiverMockStorage.sol';
 import '../ERC721A__Initializable.sol';
 
