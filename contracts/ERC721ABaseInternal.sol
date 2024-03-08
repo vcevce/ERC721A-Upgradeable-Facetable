@@ -220,21 +220,21 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
     /**
      * @dev Returns the token collection name.
      */
-    function _name() public view virtual returns (string memory) {
+    function _name() internal view virtual returns (string memory) {
         return ERC721AStorage.layout()._name;
     }
 
     /**
      * @dev Returns the token collection symbol.
      */
-    function _symbol() public view virtual returns (string memory) {
+    function _symbol() internal view virtual returns (string memory) {
         return ERC721AStorage.layout()._symbol;
     }
 
     /**
      * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
      */
-    function _tokenURI(uint256 tokenId) public view virtual returns (string memory) {
+    function _tokenURI(uint256 tokenId) internal view virtual returns (string memory) {
         if (!_exists(tokenId)) _revert(URIQueryForNonexistentToken.selector);
 
         string memory baseURI = _baseURI();
@@ -360,7 +360,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
      *
      * - `tokenId` must exist.
      */
-    function _ownerOf(uint256 tokenId) public view virtual returns (address) {
+    function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
         return address(uint160(_packedOwnershipOf(tokenId)));
     }
 
@@ -440,7 +440,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
         address from,
         address to,
         uint256 tokenId
-    ) public payable virtual {
+    ) internal payable virtual {
         uint256 prevOwnershipPacked = _packedOwnershipOf(tokenId);
 
         // Mask `from` to the lower 160 bits, in case the upper bits somehow aren't clean.
@@ -534,7 +534,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
         address to,
         uint256 tokenId,
         bytes memory _data
-    ) public payable virtual {
+    ) internal payable virtual {
         _transferFrom(from, to, tokenId);
         if (to.code.length != 0)
             if (!_checkContractOnERC721Received(from, to, tokenId, _data)) {
@@ -800,7 +800,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
      *
      * Emits an {ApprovalForAll} event.
      */
-    function _setApprovalForAll(address operator, bool approved) public virtual {
+    function _setApprovalForAll(address operator, bool approved) internal virtual {
         ERC721AStorage.layout()._operatorApprovals[_msgSenderERC721A()][operator] = approved;
         emit ApprovalForAll(_msgSenderERC721A(), operator, approved);
     }
@@ -810,7 +810,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
      *
      * See {setApprovalForAll}.
      */
-    function _isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+    function _isApprovedForAll(address owner, address operator) internal view virtual returns (bool) {
         return ERC721AStorage.layout()._operatorApprovals[owner][operator];
     }
 
@@ -857,7 +857,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
      *
      * - `tokenId` must exist.
      */
-    function _getApproved(uint256 tokenId) public view virtual returns (address) {
+    function _getApproved(uint256 tokenId) internal view virtual returns (address) {
         if (!_exists(tokenId)) _revert(ApprovalQueryForNonexistentToken.selector);
 
         return ERC721AStorage.layout()._tokenApprovals[tokenId].value;
