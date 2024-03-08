@@ -440,7 +440,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
         address from,
         address to,
         uint256 tokenId
-    ) internal payable virtual {
+    ) internal virtual {
         uint256 prevOwnershipPacked = _packedOwnershipOf(tokenId);
 
         // Mask `from` to the lower 160 bits, in case the upper bits somehow aren't clean.
@@ -534,7 +534,7 @@ abstract contract ERC721ABaseInternal is ERC721A__Initializable, IERC721ABaseInt
         address to,
         uint256 tokenId,
         bytes memory _data
-    ) internal payable virtual {
+    ) internal virtual {
         _transferFrom(from, to, tokenId);
         if (to.code.length != 0)
             if (!_checkContractOnERC721Received(from, to, tokenId, _data)) {
